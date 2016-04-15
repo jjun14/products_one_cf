@@ -1,0 +1,23 @@
+<div ng-controller='productsController'>
+  <h1>Products</h1>
+  <h3>Add a New Product</h3>
+  Name: <input type="text" ng-model='newProduct.name'><br>
+  Price: <input type="number" step='0.01' ng-model='newProduct.price'><br>
+  <button ng-click='addProduct(newProduct)'>Add Product</button>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat='product in products'>
+        <td>{{ product.name }}</td>
+        <td>${{ product.price | number:2 }}</td>
+        <td><button ng-click='deleteProduct(product)'>Delete Product</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

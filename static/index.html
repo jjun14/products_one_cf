@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <title>One Controller/One Factory</title>
+    <style>
+      table, tbody, thead, tr, th, td {
+        border-collapse: collapse;
+        border: 1px solid silver;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.min.js"></script>
+    <script>
+      var myApp = angular.module('myApp', ['ngRoute']);
+      //  use the config method to set up routing:
+      myApp.config(function ($routeProvider) {
+        $routeProvider
+          .when('/',{
+              templateUrl: 'partials/products.html'
+          })
+          .otherwise({
+            redirectTo: '/'
+          });
+      });
+
+      myApp.factory('productFactory', function(){
+        var factory = {};
+        // pre-populate products
+        var products = [
+                        {'name': 'keyboard', 'price': 19.99},
+                        {'name': 'mouse', 'price': 9.99},
+                        {'name': 'basketball', 'price': 15.99}
+                       ];
+        // this function will handle initializing our products in controller
+        factory.getAllProducts = function(callback){
+          callback(products);
+        }
+
+        // for adding to the list of products
+        factory.addProduct = function(product, callback){
+          products.push(product);
+          callback(products);
+        }
+
+        // for deleting from the list of products
+        factory.deleteProduct = function(product, callback){
+          var index = products.indexOf(product);
+          products.splice(index, 1);
+          callback(products);
+        }
+        return factory;
+      })
+
+      myApp.controller('productsController', function($scope, productFactory){
+        // define an initializer function to populate our products
+        function init(){
+          productFactory.getAllProducts(function(data){
+            $scope.products = data;
+          })
+        }
+        // initialize products
+        init();
+
+        // for adding products (i.e ng-click="addProduct(newProduct)")
+        $scope.addProduct = function(product){
+          // if either field is blank reutnr false
+          if(!product.name || !product.price){
+            return false;
+          }
+          // otherwise, add the new product to the factory
+          // and then update in the controller using a callback function
+          productFactory.addProduct(product, function(data){
+            $scope.products = data;
+            // set newProduct to an empty object to avoid submitting the same input again
+            $scope.newProduct = {};
+          })
+        }
+
+        // delete product from the factory and then update in the controller with the 
+        // callback function
+        $scope.deleteProduct = function(product){
+          productFactory.deleteProduct(product, function(data){
+            $scope.products = data;
+          });
+        }
+      });
+
+    </script>
+  </head>
+  <body ng-app='myApp'>
+    <div ng-view=''></div>
+  </body>
+</html>
